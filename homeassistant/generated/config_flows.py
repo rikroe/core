@@ -85,6 +85,7 @@ FLOWS = {
         "coinbase",
         "color_extractor",
         "comelit",
+        "cometblue",
         "control4",
         "coolmaster",
         "cpuspeed",

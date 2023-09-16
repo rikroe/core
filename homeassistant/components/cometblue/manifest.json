@@ -1,0 +1,17 @@
+{
+  "domain": "cometblue",
+  "name": "Eurotronic Comet Blue",
+  "bluetooth": [
+    {
+      "service_uuid": "47e9ee00-47e9-11e4-8939-164230d1df67",
+      "connectable": true
+    }
+  ],
+  "codeowners": ["@rikroe"],
+  "config_flow": true,
+  "dependencies": ["bluetooth"],
+  "documentation": "https://www.home-assistant.io/integrations/cometblue",
+  "iot_class": "local_polling",
+  "loggers": ["cometblue"],
+  "requirements": ["eurotronic-cometblue==1.1.0"]
+}

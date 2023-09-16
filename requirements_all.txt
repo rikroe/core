@@ -772,6 +772,9 @@ eternalegypt==0.0.16
 # homeassistant.components.eufylife_ble
 eufylife-ble-client==0.1.8
 
+# homeassistant.components.cometblue
+eurotronic-cometblue==1.1.0
+
 # homeassistant.components.keyboard_remote
 # evdev==1.6.1
 
