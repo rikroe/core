@@ -895,6 +895,12 @@
       "config_flow": true,
       "iot_class": "local_polling"
     },
+    "cometblue": {
+      "name": "Eurotronic Comet Blue",
+      "integration_type": "hub",
+      "config_flow": true,
+      "iot_class": "local_polling"
+    },
     "comfoconnect": {
       "name": "Zehnder ComfoAir Q",
       "integration_type": "hub",

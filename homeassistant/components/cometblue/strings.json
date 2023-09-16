@@ -1,0 +1,18 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "abort": {
+      "no_devices_found": "There aren't any Comet Blue Bluetooth TRVs nearby."
+    },
+    "step": {
+      "bluetooth_confirm": {
+        "description": "Do you want to add the Comet Blue TRV `{name}` to Home Assistant?",
+        "title": "Discovered Comet Blue TRV",
+        "data": {
+          "pin": "Please enter PIN",
+          "device_name": "Device name (Optional)"
+        }
+      }
+    }
+  }
+}

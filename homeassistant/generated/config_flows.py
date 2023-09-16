@@ -83,6 +83,7 @@ FLOWS = {
         "co2signal",
         "coinbase",
         "comelit",
+        "cometblue",
         "control4",
         "coolmaster",
         "cpuspeed",
