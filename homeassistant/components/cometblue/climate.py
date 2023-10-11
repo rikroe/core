@@ -58,7 +58,11 @@ class CometBlueClimateEntity(CometBlueBluetoothEntity, ClimateEntity):
         self._attr_temperature_unit = UnitOfTemperature.CELSIUS
         self._attr_hvac_modes = [HVACMode.AUTO]
         self._attr_hvac_mode = HVACMode.AUTO
-        self._attr_supported_features: ClimateEntityFeature = ClimateEntityFeature(19)
+        self._attr_supported_features: ClimateEntityFeature = (
+            ClimateEntityFeature.TARGET_TEMPERATURE
+            | ClimateEntityFeature.TARGET_TEMPERATURE_RANGE
+            | ClimateEntityFeature.PRESET_MODE
+        )
         self._attr_preset_modes = [
             PRESET_NONE,
             PRESET_ECO,
@@ -103,7 +107,7 @@ class CometBlueClimateEntity(CometBlueBluetoothEntity, ClimateEntity):
         """Set new target temperatures."""
 
         try:
-            LOGGER.debug("Updating '%s'  with '%s'", self.entity_id, kwargs)
+            LOGGER.debug("Updating '%s' with '%s'", self.entity_id, kwargs)
             async with self.coordinator.device as cometblue:
                 await cometblue.set_temperature_async(
                     {
