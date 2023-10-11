@@ -20,6 +20,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
+from .climate import MAX_TEMP, MIN_TEMP, STEP_TEMP
 from .const import DOMAIN
 from .coordinator import CometBlueBluetoothEntity, CometBlueDataUpdateCoordinator
 
@@ -51,8 +52,32 @@ DESCRIPTIONS = [
         set_fn=lambda x: x.set_temperature_async,
         native_min_value=-5.0,
         native_max_value=5.0,
-        native_step=0.5,
-        entity_registry_visible_default=False,
+        native_step=STEP_TEMP,
+        entity_registry_enabled_default=False,
+    ),
+    CometBlueNumberEntityDescription(
+        key="target_temp_low",
+        cometblue_key="targetTempLow",
+        name="Target Temperature Low",
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        set_fn=lambda x: x.set_temperature_async,
+        native_min_value=MIN_TEMP,
+        native_max_value=MAX_TEMP,
+        native_step=STEP_TEMP,
+        entity_registry_enabled_default=False,
+    ),
+    CometBlueNumberEntityDescription(
+        key="target_temp_high",
+        cometblue_key="targetTempHigh",
+        name="Target Temperature High",
+        device_class=NumberDeviceClass.TEMPERATURE,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        set_fn=lambda x: x.set_temperature_async,
+        native_min_value=MIN_TEMP,
+        native_max_value=MAX_TEMP,
+        native_step=STEP_TEMP,
+        entity_registry_enabled_default=False,
     ),
     CometBlueNumberEntityDescription(
         key="window_open_minutes",
@@ -64,7 +89,7 @@ DESCRIPTIONS = [
         native_min_value=5.0,
         native_max_value=15.0,
         native_step=5.0,
-        entity_registry_visible_default=False,
+        entity_registry_enabled_default=False,
     ),
 ]
 
