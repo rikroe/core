@@ -14,5 +14,26 @@
         }
       }
     }
+  },
+  "services": {
+    "sync_schedule": {
+      "description": "Sync the schedule between a TRV and a Schedule entity.",
+      "fields": {
+        "climate_entity": {
+          "name": "Comet Blue TRV"
+        },
+        "schedule_entity": {
+          "name": "Schedule entity"
+        },
+        "direction": {
+          "name": "Direction",
+          "options": {
+            "schedule_to_trv": "Schedule to TRV",
+            "trv_to_schedule": "TRV to Schedule"
+          }
+        }
+      },
+      "name": "Sync Schedule"
+    }
   }
 }

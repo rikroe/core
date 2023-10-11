@@ -1,0 +1,26 @@
+# Describes the format for available Number entity services
+
+sync_schedule:
+  fields:
+    climate_entity:
+      required: true
+      selector:
+        entity:
+          filter:
+            domain: climate
+            integration: cometblue
+    schedule_entity:
+      required: true
+      selector:
+        entity:
+          filter:
+            domain: schedule
+    direction:
+      required: true
+      selector:
+        select:
+          options:
+            - value: schedule_to_trv
+              label: Schedule to TRV
+            - value: trv_to_schedule
+              label: TRV to Schedule

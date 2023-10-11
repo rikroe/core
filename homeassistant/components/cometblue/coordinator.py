@@ -5,7 +5,7 @@ from datetime import timedelta
 import logging
 from typing import Any
 
-from cometblue import AsyncCometBlue
+from cometblue import AsyncCometBlue, Weekday
 
 from homeassistant.components import bluetooth
 from homeassistant.core import HomeAssistant
@@ -46,6 +46,35 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[dict[str, bytes]]):
         self.data: dict[str, Any] = {}
         self.device_info = device_info
 
+    # @staticmethod
+    # def _format_schedule(schedule: dict[str, Any]) -> dict[str, Any]:
+    #     return {
+
+    #         day: [
+    #             parsed_schedule
+    #             for parsed_schedule in [
+    #                 {
+    #                     "from": day_schedule["start1"],
+    #                     "to": day_schedule["end1"],
+    #                 },
+    #                 {
+    #                     "from": day_schedule["start2"],
+    #                     "to": day_schedule["end2"],
+    #                 },
+    #                 {
+    #                     "from": day_schedule["start3"],
+    #                     "to": day_schedule["end3"],
+    #                 },
+    #                 {
+    #                     "from": day_schedule["start4"],
+    #                     "to": day_schedule["end4"],
+    #                 },
+    #             ]
+    #             if parsed_schedule["from"] != "42:30" and parsed_schedule["to"] != "42:30"
+    #         ]
+    #         for day, day_schedule in schedule.items()
+    #     }
+
     async def _async_update_data(self) -> dict[str, bytes]:
         """Poll the device."""
         data: dict = {}
@@ -58,10 +87,13 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[dict[str, bytes]]):
                     )
                 data = {
                     "battery": await self.device.get_battery_async(),
-                    # "schedule": await self.device.get_weekday_async(),
                     "datetime": await self.device.get_datetime_async(),
                     # "holiday": await self.device.get_holiday_async(),
                     **await self.device.get_temperature_async(),
+                    "schedule": {
+                        d.name.lower(): await self.device.get_weekday_async(d)
+                        for d in Weekday
+                    },
                 }
         except Exception as ex:
             raise UpdateFailed(f"Unable to update data for due to {ex}") from ex
