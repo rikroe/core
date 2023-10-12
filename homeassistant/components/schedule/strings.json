@@ -35,20 +35,6 @@
           "description": "Schedule entity to retrieve the schedule from."
         }
       }
-    },
-    "set": {
-      "name": "Set",
-      "description": "Set a schedule (overwriting the existing).",
-      "fields": {
-        "entity_id": {
-          "name": "Entity",
-          "description": "Schedule entity to update."
-        },
-        "schedule": {
-          "name": "Schedule",
-          "description": "Full new schedule (will be replaced). If a day is not specified, all schedules for this day will be removed."
-        }
-      }
     }
   }
 }
