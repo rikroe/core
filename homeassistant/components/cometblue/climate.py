@@ -4,8 +4,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from bleak import BleakError
-
 from homeassistant.components.climate import (
     ATTR_TARGET_TEMP_HIGH,
     ATTR_TARGET_TEMP_LOW,
@@ -20,7 +18,6 @@ from homeassistant.components.climate import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import DOMAIN
@@ -106,22 +103,15 @@ class CometBlueClimateEntity(CometBlueBluetoothEntity, ClimateEntity):
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperatures."""
 
-        try:
-            LOGGER.debug("Updating '%s' with '%s'", self.entity_id, kwargs)
-            async with self.coordinator.device as cometblue:
-                await cometblue.set_temperature_async(
-                    {
-                        # manual temperature always needs to be set, otherwise TRV will turn OFF
-                        "manualTemp": kwargs.get(ATTR_TEMPERATURE)
-                        or self.target_temperature,
-                        "targetTempLow": kwargs.get(ATTR_TARGET_TEMP_LOW),
-                        "targetTempHigh": kwargs.get(ATTR_TARGET_TEMP_HIGH),
-                    }
-                )
-        except BleakError as err:
-            raise HomeAssistantError(
-                f"Error setting '{self.entity_id}' temperature to '{kwargs}': {err}"
-            ) from err
+        await self.coordinator.send_command(
+            {
+                # manual temperature always needs to be set, otherwise TRV will turn OFF
+                "manualTemp": kwargs.get(ATTR_TEMPERATURE) or self.target_temperature,
+                "targetTempLow": kwargs.get(ATTR_TARGET_TEMP_LOW),
+                "targetTempHigh": kwargs.get(ATTR_TARGET_TEMP_HIGH),
+            },
+            self.entity_id,
+        )
         await self.coordinator.async_request_refresh()
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:

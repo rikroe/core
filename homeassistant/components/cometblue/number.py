@@ -6,7 +6,6 @@ from dataclasses import dataclass
 import logging
 from typing import Any
 
-from bleak import BleakError
 from cometblue import AsyncCometBlue
 
 from homeassistant.components.number import (
@@ -17,7 +16,6 @@ from homeassistant.components.number import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfTemperature, UnitOfTime
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .climate import MAX_TEMP, MIN_TEMP, STEP_TEMP
@@ -133,18 +131,12 @@ class CometBlueNumberEntity(CometBlueBluetoothEntity, NumberEntity):
 
         if self.entity_description.key == "offset" and value < 0:
             raise NotImplementedError("Offsets <0 are not implemented in the library")
-        try:
-            LOGGER.debug("Updating '%s' with '%s'", self.entity_id, value)
-            async with self.coordinator.device as cometblue:
-                await cometblue.set_temperature_async(
-                    {
-                        # manual temperature always needs to be set, otherwise TRV will turn OFF
-                        "manualTemp": self.coordinator.data["manualTemp"],
-                        self.entity_description.cometblue_key: value,
-                    }
-                )
-        except BleakError as err:
-            raise HomeAssistantError(
-                f"Error setting '{self.entity_id}' to '{value}': {err}"
-            ) from err
+        await self.coordinator.send_command(
+            {
+                # manual temperature always needs to be set, otherwise TRV will turn OFF
+                "manualTemp": self.coordinator.data["manualTemp"],
+                self.entity_description.cometblue_key: value,
+            },
+            self.entity_id,
+        )
         await self.coordinator.async_request_refresh()

@@ -5,6 +5,7 @@ from datetime import timedelta
 import logging
 from typing import Any
 
+from bleak import BleakError
 from cometblue import AsyncCometBlue
 
 from homeassistant.components import bluetooth
@@ -45,6 +46,30 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[dict[str, bytes]]):
         self.address = cometblue.client.address
         self.data: dict[str, Any] = {}
         self.device_info = device_info
+
+    async def send_command(
+        self, payload: dict[str, Any], caller_entity_id: str
+    ) -> None:
+        """Send command to device."""
+
+        if not isinstance(payload, dict):
+            raise HomeAssistantError("Payload must be a dict")
+
+        try:
+            LOGGER.debug(
+                "Updating device with '%s' from '%s'", caller_entity_id, payload
+            )
+            async with self.device as cometblue:
+                await cometblue.set_temperature_async(payload)
+        except ValueError as err:
+            raise HomeAssistantError(
+                f"Invalid payload '{payload}' for '{caller_entity_id}': {err}"
+            ) from err
+
+        except BleakError as err:
+            raise HomeAssistantError(
+                f"Error sending command '{payload}' to '{caller_entity_id}': {err}"
+            ) from err
 
     async def _async_update_data(self) -> dict[str, bytes]:
         """Poll the device."""
