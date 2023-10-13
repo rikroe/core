@@ -14,5 +14,27 @@
         }
       }
     }
+  },
+  "services": {
+    "set_datetime": {
+      "name": "Set Datetime",
+      "description": "Set datetime on device.",
+      "fields": {
+        "datetime": {
+          "name": "Datetime",
+          "description": "(Optional) A specific datetime. Defaults to current local datetime."
+        }
+      }
+    },
+    "set_schedule": {
+      "name": "Set Schedule",
+      "description": "Set schedule on device.",
+      "fields": {
+        "schedule": {
+          "name": "Schedule",
+          "description": "Schedule to set. A weekday not given will be ignored. Set to an empty list to delete a schedule for a day."
+        }
+      }
+    }
   }
 }
