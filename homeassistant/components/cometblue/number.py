@@ -132,10 +132,15 @@ class CometBlueNumberEntity(CometBlueBluetoothEntity, NumberEntity):
         if self.entity_description.key == "offset" and value < 0:
             raise NotImplementedError("Offsets <0 are not implemented in the library")
         await self.coordinator.send_command(
+            "set_temperature_async",
             {
-                # manual temperature always needs to be set, otherwise TRV will turn OFF
-                "manualTemp": self.coordinator.data["manualTemp"],
-                self.entity_description.cometblue_key: value,
+                "values": {
+                    {
+                        # manual temperature always needs to be set, otherwise TRV will turn OFF
+                        "manualTemp": self.coordinator.data["manualTemp"],
+                        self.entity_description.cometblue_key: value,
+                    }
+                }
             },
             self.entity_id,
         )

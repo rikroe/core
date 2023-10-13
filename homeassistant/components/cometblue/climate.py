@@ -104,11 +104,15 @@ class CometBlueClimateEntity(CometBlueBluetoothEntity, ClimateEntity):
         """Set new target temperatures."""
 
         await self.coordinator.send_command(
+            "set_temperature_async",
             {
-                # manual temperature always needs to be set, otherwise TRV will turn OFF
-                "manualTemp": kwargs.get(ATTR_TEMPERATURE) or self.target_temperature,
-                "targetTempLow": kwargs.get(ATTR_TARGET_TEMP_LOW),
-                "targetTempHigh": kwargs.get(ATTR_TARGET_TEMP_HIGH),
+                "values": {
+                    # manual temperature always needs to be set, otherwise TRV will turn OFF
+                    "manualTemp": kwargs.get(ATTR_TEMPERATURE)
+                    or self.target_temperature,
+                    "targetTempLow": kwargs.get(ATTR_TARGET_TEMP_LOW),
+                    "targetTempHigh": kwargs.get(ATTR_TARGET_TEMP_HIGH),
+                }
             },
             self.entity_id,
         )

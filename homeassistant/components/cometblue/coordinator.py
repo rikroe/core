@@ -48,24 +48,22 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[dict[str, bytes]]):
         self.device_info = device_info
 
     async def send_command(
-        self, payload: dict[str, Any], caller_entity_id: str
+        self, function: str, payload: dict[str, Any], caller_entity_id: str
     ) -> None:
         """Send command to device."""
 
-        if not isinstance(payload, dict):
-            raise HomeAssistantError("Payload must be a dict")
-
+        LOGGER.debug("Updating device with '%s' from '%s'", caller_entity_id, payload)
         try:
-            LOGGER.debug(
-                "Updating device with '%s' from '%s'", caller_entity_id, payload
-            )
-            async with self.device as cometblue:
-                await cometblue.set_temperature_async(payload)
+            async with self.device:
+                if not self.device.connected:
+                    raise ConfigEntryNotReady(
+                        f"Failed to connect to '{self.device.device.address}'"
+                    )
+                await getattr(self.device, function)(**payload)
         except ValueError as err:
             raise HomeAssistantError(
                 f"Invalid payload '{payload}' for '{caller_entity_id}': {err}"
             ) from err
-
         except BleakError as err:
             raise HomeAssistantError(
                 f"Error sending command '{payload}' to '{caller_entity_id}': {err}"
