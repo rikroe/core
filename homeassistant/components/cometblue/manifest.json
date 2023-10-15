@@ -13,5 +13,7 @@
   "documentation": "https://www.home-assistant.io/integrations/cometblue",
   "iot_class": "local_polling",
   "loggers": ["cometblue"],
-  "requirements": ["eurotronic-cometblue==1.1.0"]
+  "requirements": [
+    "git+https://github.com/rikroe/eurotronic-cometblue.git@ha-component#eurotronic-cometblue==1.0"
+  ]
 }
