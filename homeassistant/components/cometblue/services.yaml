@@ -9,32 +9,83 @@ set_datetime:
       selector:
         datetime:
 
+get_schedule:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          filter:
+            - domain: climate
+              integration: cometblue
+
 set_schedule:
   target:
     entity:
       domain: climate
       integration: cometblue
   fields:
-    schedule:
+    monday:
       example: |
-        monday:
-          - from: "09:00:00"
-            to: "12:00:00"
-          - from: "17:00:00"
-            to: "19:00:00"
-        tuesday:
-          - from: "12:00:00"
-            to: "15:00:00"
-        wednesday:
-          - from: "09:00:00"
-            to: "11:00:00"
-        thursday:
-          - from: "09:00:00"
-            to: "15:00:00"
-        saturday: []
-        sunday:
-          - from: "09:00:00"
-            to: "11:00:00"
-      required: true
+        start1: 07:00:00
+        end1: 09:00:00
+        start2: 10:00:00
+        end2: 12:00:00
+        start3: 13:00:00
+        end3: 17:00:00
+        start4: 20:00:00
+        end4: 23:00:00
+      required: false
+      selector:
+        object:
+    tuesday:
+      example: |
+        start1: 09:00:00
+        end1: 12:00:00
+        start2: 17:00:00
+        end2: 19:00:00
+      required: false
+      selector:
+        object:
+    wednesday:
+      example: |
+        start1: 09:00:00
+        end1: 12:00:00
+        start2: 17:00:00
+        end2: 19:00:00
+      required: false
+      selector:
+        object:
+    thursday:
+      example: |
+        start1: 09:00:00
+        end1: 12:00:00
+        start2: 17:00:00
+        end2: 19:00:00
+      required: false
+      selector:
+        object:
+    friday:
+      example: |
+        {}
+      required: false
+      selector:
+        object:
+    saturday:
+      example: |
+        start1: 09:00:00
+        end1: 12:00:00
+        start2: 17:00:00
+        end2: 19:00:00
+      required: false
+      selector:
+        object:
+    sunday:
+      example: |
+        start1: 09:00:00
+        end1: 12:00:00
+        start2: 17:00:00
+        end2: 19:00:00
+      required: false
       selector:
         object:

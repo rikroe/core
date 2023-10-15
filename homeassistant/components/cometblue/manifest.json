@@ -1,7 +1,6 @@
 {
   "domain": "cometblue",
   "name": "Eurotronic Comet Blue",
-  "after_dependencies": ["schedule"],
   "bluetooth": [
     {
       "service_uuid": "47e9ee00-47e9-11e4-8939-164230d1df67",

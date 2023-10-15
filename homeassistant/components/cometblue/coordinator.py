@@ -49,7 +49,7 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[dict[str, bytes]]):
 
     async def send_command(
         self, function: str, payload: dict[str, Any], caller_entity_id: str
-    ) -> None:
+    ) -> dict[str, Any] | None:
         """Send command to device."""
 
         LOGGER.debug("Updating device with '%s' from '%s'", caller_entity_id, payload)
@@ -59,7 +59,7 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[dict[str, bytes]]):
                     raise ConfigEntryNotReady(
                         f"Failed to connect to '{self.device.device.address}'"
                     )
-                await getattr(self.device, function)(**payload)
+                return await getattr(self.device, function)(**payload)
         except ValueError as err:
             raise HomeAssistantError(
                 f"Invalid payload '{payload}' for '{caller_entity_id}': {err}"

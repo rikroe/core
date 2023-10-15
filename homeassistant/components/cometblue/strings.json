@@ -26,13 +26,47 @@
         }
       }
     },
+    "get_schedule": {
+      "name": "Get Schedule",
+      "description": "Get schedule from device.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "CometBlue entity to retrieve the schedule from."
+        }
+      }
+    },
     "set_schedule": {
       "name": "Set Schedule",
-      "description": "Set schedule on device.",
+      "description": "Set schedule on device. A weekday not given will be ignored. Set to `delete: true` to delete a schedule for a day.",
       "fields": {
-        "schedule": {
-          "name": "Schedule",
-          "description": "Schedule to set. A weekday not given will be ignored. Set to an empty list to delete a schedule for a day."
+        "monday": {
+          "name": "[%key:common::time::monday%]",
+          "description": "Day schedule in 24h-format, from start1/end1 to start4/end. Not all pairs need to be set."
+        },
+        "tuesday": {
+          "name": "[%key:common::time::tuesday%]",
+          "description": "[%key:component::cometblue::services::set_schedule::fields::monday::description%]"
+        },
+        "wednesday": {
+          "name": "[%key:common::time::wednesday%]",
+          "description": "[%key:component::cometblue::services::set_schedule::fields::monday::description%]"
+        },
+        "thursday": {
+          "name": "[%key:common::time::thursday%]",
+          "description": "[%key:component::cometblue::services::set_schedule::fields::monday::description%]"
+        },
+        "friday": {
+          "name": "[%key:common::time::friday%]",
+          "description": "[%key:component::cometblue::services::set_schedule::fields::monday::description%]"
+        },
+        "saturday": {
+          "name": "[%key:common::time::saturday%]",
+          "description": "[%key:component::cometblue::services::set_schedule::fields::monday::description%]"
+        },
+        "sunday": {
+          "name": "[%key:common::time::sunday%]",
+          "description": "[%key:component::cometblue::services::set_schedule::fields::monday::description%]"
         }
       }
     }

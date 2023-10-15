@@ -10,21 +10,26 @@ import cometblue
 import voluptuous as vol
 
 from homeassistant.components import bluetooth
-from homeassistant.components.schedule import (
-    CONF_ALL_DAYS,
-    TIME_RANGE_SCHEMA,
-    valid_schedule,
-)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_ADDRESS, CONF_ENTITY_ID, CONF_PIN, Platform
-from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
+from homeassistant.const import CONF_ADDRESS, CONF_PIN, Platform
+from homeassistant.core import (
+    HomeAssistant,
+    ServiceCall,
+    ServiceResponse,
+    SupportsResponse,
+)
 from homeassistant.exceptions import ConfigEntryNotReady
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.device_registry import DeviceInfo
-from homeassistant.helpers.entity_registry import EntityRegistry
 
-from .const import CONF_DATETIME, CONF_DEVICE_NAME, CONF_SCHEDULE, DOMAIN
+from .const import CONF_ALL_DAYS, CONF_DEVICE_NAME, DOMAIN
 from .coordinator import CometBlueDataUpdateCoordinator
+from .utils import (
+    SERVICE_DATETIME_SCHEMA,
+    SERVICE_ENTITY_SCHEMA,
+    SERVICE_SCHEDULE_SCHEMA,
+    get_coordinator_for_service,
+)
 
 PLATFORMS: list[Platform] = [
     Platform.CLIMATE,
@@ -33,19 +38,6 @@ PLATFORMS: list[Platform] = [
 ]
 LOGGER = logging.getLogger(__name__)
 TIMEOUT = 10
-
-
-SERVICE_BASE_SCHEMA = {vol.Required(CONF_ENTITY_ID): cv.entity_id}
-SERVICE_SET_DATETIME_SCHEMA = {
-    vol.Optional(CONF_DATETIME): cv.datetime,
-}
-SCHEDULE_SCHEMA = {
-    vol.Optional(day): vol.All([TIME_RANGE_SCHEMA], valid_schedule)
-    for day in CONF_ALL_DAYS
-}
-SERVICE_SCHEDULE_SCHEMA = {
-    vol.Required(CONF_SCHEDULE): SCHEDULE_SCHEMA,
-}
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -110,26 +102,62 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 service_call.service,
             )
 
-    async def service_set_schedule(service_call: ServiceCall) -> None:
-        """Service call to update the datetime on the device."""
+    async def service_get_schedule(
+        service_call: ServiceCall,
+    ) -> ServiceResponse:
+        """Service call to retrieve the schedule from the device."""
 
-        for entity_id in service_call.data["entity_id"]:
+        entity_coordinator = await get_coordinator_for_service(
+            hass, service_call.data["entity_id"]
+        )
+        return await entity_coordinator.send_command(
+            "get_multiple_async",
+            {"values": ["weekdays"]},
+            service_call.service,
+        )
+
+    async def service_set_schedule(service_call: ServiceCall) -> None:
+        """Service call to update the schedule on the device."""
+
+        data = service_call.data.copy()
+
+        for entity_id in data.pop("entity_id", []):
             entity_coordinator = await get_coordinator_for_service(hass, entity_id)
-            for day in service_call.data["schedule"]:
+            LOGGER.info(
+                "Setting schedule for %s (%s)",
+                entity_id,
+                entity_coordinator.device.device.address,
+            )
+            for day in CONF_ALL_DAYS:
                 LOGGER.info(
-                    "%s (%s): %s - %s",
-                    entity_id,
-                    entity_coordinator.device,
+                    "%s - %s",
                     day,
-                    service_call.data["schedule"][day],
+                    service_call.data.get(day),
                 )
+            values = {
+                day: {k: v.strftime("%H:%M") for k, v in sched.items()}
+                for day, sched in data.items()
+                if sched is not None
+            }
+            await entity_coordinator.send_command(
+                "set_weekdays_async",
+                {"values": values},
+                service_call.service,
+            )
 
     hass.services.async_register(
         DOMAIN,
         "set_datetime",
         service_set_datetime,
-        schema=cv.make_entity_service_schema(SERVICE_SET_DATETIME_SCHEMA),
+        schema=cv.make_entity_service_schema(SERVICE_DATETIME_SCHEMA),
         supports_response=SupportsResponse.NONE,
+    )
+    hass.services.async_register(
+        DOMAIN,
+        "get_schedule",
+        service_get_schedule,
+        schema=vol.Schema(SERVICE_ENTITY_SCHEMA),
+        supports_response=SupportsResponse.ONLY,
     )
     hass.services.async_register(
         DOMAIN,
@@ -140,18 +168,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     return True
-
-
-async def get_coordinator_for_service(
-    hass: HomeAssistant, entity_id: str
-) -> CometBlueDataUpdateCoordinator:
-    """Return the coordinator for a given entity_id."""
-    er = EntityRegistry(hass)
-    await er.async_load()
-    entity = er.async_get(entity_id)
-    if not entity:
-        raise ValueError(f"Entity '{entity_id}' not found")
-    return hass.data[DOMAIN][entity.config_entry_id]
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
