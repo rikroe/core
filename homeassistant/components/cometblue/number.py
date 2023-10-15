@@ -14,11 +14,11 @@ from homeassistant.components.number import (
     NumberEntityDescription,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import UnitOfTemperature, UnitOfTime
+from homeassistant.const import PRECISION_HALVES, UnitOfTemperature, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .climate import MAX_TEMP, MIN_TEMP, STEP_TEMP
+from .climate import MAX_TEMP, MIN_TEMP
 from .const import DOMAIN
 from .coordinator import CometBlueBluetoothEntity, CometBlueDataUpdateCoordinator
 
@@ -50,7 +50,7 @@ DESCRIPTIONS = [
         set_fn=lambda x: x.set_temperature_async,
         native_min_value=-5.0,
         native_max_value=5.0,
-        native_step=STEP_TEMP,
+        native_step=PRECISION_HALVES,
         entity_registry_enabled_default=False,
     ),
     CometBlueNumberEntityDescription(
@@ -62,7 +62,7 @@ DESCRIPTIONS = [
         set_fn=lambda x: x.set_temperature_async,
         native_min_value=MIN_TEMP,
         native_max_value=MAX_TEMP,
-        native_step=STEP_TEMP,
+        native_step=PRECISION_HALVES,
         entity_registry_enabled_default=False,
     ),
     CometBlueNumberEntityDescription(
@@ -74,7 +74,7 @@ DESCRIPTIONS = [
         set_fn=lambda x: x.set_temperature_async,
         native_min_value=MIN_TEMP,
         native_max_value=MAX_TEMP,
-        native_step=STEP_TEMP,
+        native_step=PRECISION_HALVES,
         entity_registry_enabled_default=False,
     ),
     CometBlueNumberEntityDescription(

@@ -16,7 +16,7 @@ from homeassistant.components.climate import (
     HVACMode,
 )
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import ATTR_TEMPERATURE, UnitOfTemperature
+from homeassistant.const import ATTR_TEMPERATURE, PRECISION_HALVES, UnitOfTemperature
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
@@ -27,7 +27,6 @@ LOGGER = logging.getLogger(__name__)
 
 MIN_TEMP = 8
 MAX_TEMP = 28
-STEP_TEMP = 0.5
 
 
 async def async_setup_entry(
@@ -44,7 +43,7 @@ class CometBlueClimateEntity(CometBlueBluetoothEntity, ClimateEntity):
 
     _attr_min_temp = MIN_TEMP
     _attr_max_temp = MAX_TEMP
-    _attr_target_temperature_step = STEP_TEMP
+    _attr_target_temperature_step = PRECISION_HALVES
     _attr_name = None
 
     def __init__(self, coordinator: CometBlueDataUpdateCoordinator) -> None:
