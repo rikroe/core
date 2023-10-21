@@ -37,7 +37,7 @@ PLATFORMS: list[Platform] = [
     Platform.SENSOR,
 ]
 LOGGER = logging.getLogger(__name__)
-TIMEOUT = 10
+TIMEOUT = 20
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -53,7 +53,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         )
 
     cometblue_device = cometblue.AsyncCometBlue(
-        device=ble_device, pin=entry.data.get(CONF_PIN), timeout=TIMEOUT
+        device=ble_device, pin=entry.data.get(CONF_PIN), timeout=TIMEOUT, retries=1
     )
     try:
         async with cometblue_device:

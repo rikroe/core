@@ -29,6 +29,8 @@ class DeviceUnavailable(HomeAssistantError):
 class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[dict[str, bytes]]):
     """Class to manage fetching data."""
 
+    failed_update_count: int = 0
+
     def __init__(
         self,
         hass: HomeAssistant,
@@ -86,8 +88,10 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[dict[str, bytes]]):
                     # "holiday": await self.device.get_holiday_async(),
                     **await self.device.get_temperature_async(),
                 }
+                self.failed_update_count = 0
         except Exception as ex:
-            raise UpdateFailed(f"Unable to update data for due to {ex}") from ex
+            self.failed_update_count += 1
+            raise UpdateFailed(f"({type(ex).__name__}) {ex}") from ex
         LOGGER.debug("Received data: %s", data)
         return data
 
@@ -107,11 +111,10 @@ class CometBlueBluetoothEntity(CoordinatorEntity[CometBlueDataUpdateCoordinator]
     def available(self) -> bool:
         """Return if entity is available."""
         return (
-            self.coordinator.last_update_success
+            self.coordinator.failed_update_count < 3
             and bluetooth.async_address_present(
                 self.hass, self.coordinator.address, True
             )
-            and self._attr_available
         )
 
     async def async_added_to_hass(self) -> None:
