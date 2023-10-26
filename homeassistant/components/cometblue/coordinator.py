@@ -84,8 +84,8 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[dict[str, bytes]]):
                 data = {
                     "battery": await self.device.get_battery_async(),
                     # "schedule": await self.device.get_weekday_async(),
-                    "datetime": await self.device.get_datetime_async(),
-                    # "holiday": await self.device.get_holiday_async(),
+                    # "datetime": await self.device.get_datetime_async(),
+                    "holiday": await self.device.get_holiday_async(1),
                     **await self.device.get_temperature_async(),
                 }
                 self.failed_update_count = 0
@@ -97,7 +97,7 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[dict[str, bytes]]):
 
 
 class CometBlueBluetoothEntity(CoordinatorEntity[CometBlueDataUpdateCoordinator]):
-    """Coordinator entity for Gardena Bluetooth."""
+    """Coordinator entity for CometBlue."""
 
     coordinator: CometBlueDataUpdateCoordinator
     _attr_has_entity_name = True
