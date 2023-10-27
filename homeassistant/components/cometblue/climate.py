@@ -110,15 +110,18 @@ class CometBlueClimateEntity(CometBlueBluetoothEntity, ClimateEntity):
 
     @property
     def preset_mode(self) -> str | None:
-        """Return the current preset mode, e.g., home, away, temp.
-
-        Requires ClimateEntityFeature.PRESET_MODE.
-        """
-        if self.target_temperature == self.target_temperature_low:
-            return PRESET_ECO
+        """Return the current preset mode, e.g., home, away, temp."""
+        # presets have an order in which they are displayed on TRV:
+        # away, comfort, eco, none (or manual)
+        if (
+            self.coordinator.data["holiday"].get("start") is None
+            and self.coordinator.data["holiday"].get("end") is not None
+        ):
+            return PRESET_AWAY
         if self.target_temperature == self.target_temperature_high:
             return PRESET_COMFORT
-        # AWAY MODE NOT SUPPORTED YET
+        if self.target_temperature == self.target_temperature_low:
+            return PRESET_ECO
         return PRESET_NONE
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
