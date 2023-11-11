@@ -97,6 +97,18 @@
     StateSnapshot({
       'attributes': ReadOnlyDict({
         'attribution': 'Data provided by MyBMW',
+        'friendly_name': 'iX xDrive50 None',
+        'icon': 'mdi:fan',
+      }),
+      'context': <ANY>,
+      'entity_id': 'sensor.ix_xdrive50_none',
+      'last_changed': <ANY>,
+      'last_updated': <ANY>,
+      'state': 'INACTIVE',
+    }),
+    StateSnapshot({
+      'attributes': ReadOnlyDict({
+        'attribution': 'Data provided by MyBMW',
         'friendly_name': 'i4 eDrive40 Remaining range total',
         'icon': 'mdi:map-marker-distance',
         'state_class': <SensorStateClass.MEASUREMENT: 'measurement'>,
@@ -190,6 +202,18 @@
     StateSnapshot({
       'attributes': ReadOnlyDict({
         'attribution': 'Data provided by MyBMW',
+        'friendly_name': 'i4 eDrive40 None',
+        'icon': 'mdi:fan',
+      }),
+      'context': <ANY>,
+      'entity_id': 'sensor.i4_edrive40_none',
+      'last_changed': <ANY>,
+      'last_updated': <ANY>,
+      'state': 'HEATING',
+    }),
+    StateSnapshot({
+      'attributes': ReadOnlyDict({
+        'attribution': 'Data provided by MyBMW',
         'friendly_name': 'M340i xDrive Remaining range total',
         'icon': 'mdi:map-marker-distance',
         'state_class': <SensorStateClass.MEASUREMENT: 'measurement'>,
@@ -256,6 +280,18 @@
       'last_changed': <ANY>,
       'last_updated': <ANY>,
       'state': '80',
+    }),
+    StateSnapshot({
+      'attributes': ReadOnlyDict({
+        'attribution': 'Data provided by MyBMW',
+        'friendly_name': 'M340i xDrive None',
+        'icon': 'mdi:fan',
+      }),
+      'context': <ANY>,
+      'entity_id': 'sensor.m340i_xdrive_none',
+      'last_changed': <ANY>,
+      'last_updated': <ANY>,
+      'state': 'INACTIVE',
     }),
     StateSnapshot({
       'attributes': ReadOnlyDict({

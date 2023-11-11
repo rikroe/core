@@ -35,6 +35,7 @@ class BMWSensorEntityDescription(SensorEntityDescription):
     key_class: str | None = None
     unit_type: str | None = None
     value: Callable = lambda x, y: x
+    is_available: Callable[[MyBMWVehicle], bool] | None = None
 
 
 def convert_and_round(
@@ -150,6 +151,14 @@ SENSOR_TYPES: dict[str, BMWSensorEntityDescription] = {
         unit_type=PERCENTAGE,
         state_class=SensorStateClass.MEASUREMENT,
     ),
+    "climate_activity": BMWSensorEntityDescription(
+        key="activity",
+        translation_key="climate_activity",
+        key_class="climate",
+        icon="mdi:fan",
+        is_available=lambda v: v.is_remote_climate_stop_enabled,
+        value=lambda x, y: x.value,
+    ),
 }
 
 
@@ -164,10 +173,17 @@ async def async_setup_entry(
     entities: list[BMWSensor] = []
 
     for vehicle in coordinator.account.vehicles:
+        sensors = vehicle.available_attributes + [
+            k
+            for k, v in SENSOR_TYPES.items()
+            if v.is_available
+            and v.is_available(vehicle)
+            and k not in vehicle.available_attributes
+        ]
         entities.extend(
             [
                 BMWSensor(coordinator, vehicle, description)
-                for attribute_name in vehicle.available_attributes
+                for attribute_name in sensors
                 if (description := SENSOR_TYPES.get(attribute_name))
             ]
         )
