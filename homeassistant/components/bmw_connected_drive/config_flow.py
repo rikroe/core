@@ -36,6 +36,7 @@ DATA_SCHEMA = vol.Schema(
                 translation_key="regions",
             )
         ),
+        vol.Optional(CONF_REFRESH_TOKEN): str,
     }
 )
 
@@ -49,6 +50,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         data[CONF_USERNAME],
         data[CONF_PASSWORD],
         get_region_from_name(data[CONF_REGION]),
+        refresh_token=data.get(CONF_REFRESH_TOKEN),
     )
 
     try:
