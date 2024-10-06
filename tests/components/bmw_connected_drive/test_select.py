@@ -9,7 +9,6 @@ import respx
 from syrupy.assertion import SnapshotAssertion
 
 from homeassistant.components.bmw_connected_drive import DOMAIN as BMW_DOMAIN
-from homeassistant.components.bmw_connected_drive.select import SELECT_TYPES
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
@@ -160,11 +159,29 @@ async def test_service_call_fail(
 @pytest.mark.usefixtures("bmw_fixture")
 async def test_entity_option_translations(
     hass: HomeAssistant,
+    entity_registry: er.EntityRegistry,
 ) -> None:
     """Ensure all enum sensor values are translated."""
 
+    # Define translation keys we don't want to test because they are static numbers
+    IGNORE_TRANSLATION_KEYS = [
+        "ac_limit",
+    ]
+
     # Setup component to load translations
-    assert await setup_mocked_integration(hass)
+    with patch(
+        "homeassistant.components.bmw_connected_drive.PLATFORMS",
+        [Platform.SELECT],
+    ):
+        mock_config_entry = await setup_mocked_integration(hass)
+
+    entity_entries = [
+        entry
+        for entry in er.async_entries_for_config_entry(
+            entity_registry, mock_config_entry.entry_id
+        )
+        if entry.translation_key not in IGNORE_TRANSLATION_KEYS
+    ]
 
     prefix = f"component.{BMW_DOMAIN}.entity.{Platform.SELECT.value}"
 
@@ -174,10 +191,10 @@ async def test_entity_option_translations(
     }
 
     sensor_options = {
-        f"{prefix}.{entity_description.translation_key}.state.{option}"
-        for entity_description in SELECT_TYPES
-        if entity_description.options
-        for option in entity_description.options
+        f"{prefix}.{entry.translation_key}.state.{option}"
+        for entry in entity_entries
+        if entry.capabilities["options"]
+        for option in entry.capabilities["options"]
     }
 
     assert sensor_options == translation_states

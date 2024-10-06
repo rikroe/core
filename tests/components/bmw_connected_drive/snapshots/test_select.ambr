@@ -6,9 +6,8 @@
     'area_id': None,
     'capabilities': dict({
       'options': list([
-        'immediate_charging',
         'delayed_charging',
-        'no_action',
+        'immediate_charging',
       ]),
     }),
     'config_entry_id': <ANY>,
@@ -43,9 +42,8 @@
     'attributes': ReadOnlyDict({
       'friendly_name': 'i3 (+ REX) Charging Mode',
       'options': list([
-        'immediate_charging',
         'delayed_charging',
-        'no_action',
+        'immediate_charging',
       ]),
     }),
     'context': <ANY>,
@@ -141,9 +139,8 @@
     'area_id': None,
     'capabilities': dict({
       'options': list([
-        'immediate_charging',
         'delayed_charging',
-        'no_action',
+        'immediate_charging',
       ]),
     }),
     'config_entry_id': <ANY>,
@@ -178,9 +175,8 @@
     'attributes': ReadOnlyDict({
       'friendly_name': 'i4 eDrive40 Charging Mode',
       'options': list([
-        'immediate_charging',
         'delayed_charging',
-        'no_action',
+        'immediate_charging',
       ]),
     }),
     'context': <ANY>,
@@ -276,9 +272,8 @@
     'area_id': None,
     'capabilities': dict({
       'options': list([
-        'immediate_charging',
         'delayed_charging',
-        'no_action',
+        'immediate_charging',
       ]),
     }),
     'config_entry_id': <ANY>,
@@ -313,9 +308,8 @@
     'attributes': ReadOnlyDict({
       'friendly_name': 'iX xDrive50 Charging Mode',
       'options': list([
-        'immediate_charging',
         'delayed_charging',
-        'no_action',
+        'immediate_charging',
       ]),
     }),
     'context': <ANY>,

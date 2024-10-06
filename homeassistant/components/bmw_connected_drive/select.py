@@ -51,7 +51,14 @@ SELECT_TYPES: tuple[BMWSelectEntityDescription, ...] = (
         key="charging_mode",
         translation_key="charging_mode",
         is_available=lambda v: v.is_charging_plan_supported,
-        options=[c.value.lower() for c in ChargingMode if c != ChargingMode.UNKNOWN],
+        dynamic_options=lambda v: list(
+            {
+                c.value.lower()
+                for c in ChargingMode
+                if c not in [ChargingMode.UNKNOWN, ChargingMode.NO_ACTION]
+            }
+            | {v.charging_profile.charging_mode.value.lower()}  # type: ignore[union-attr]
+        ),
         current_option=lambda v: v.charging_profile.charging_mode.value.lower(),  # type: ignore[union-attr]
         remote_service=lambda v, o: v.remote_services.trigger_charging_profile_update(
             charging_mode=ChargingMode(o)
