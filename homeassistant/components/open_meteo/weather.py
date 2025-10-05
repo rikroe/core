@@ -11,6 +11,7 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_CLOUD_COVERAGE,
     ATTR_FORECAST_CONDITION,
     ATTR_FORECAST_HUMIDITY,
+    ATTR_FORECAST_IS_DAYTIME,
     ATTR_FORECAST_NATIVE_APPARENT_TEMP,
     ATTR_FORECAST_NATIVE_DEW_POINT,
     ATTR_FORECAST_NATIVE_PRECIPITATION,
@@ -93,6 +94,7 @@ class OpenMeteoWeatherEntity(
             return None
         return WMO_TO_HA_CONDITION_MAP.get(
             self.coordinator.data.current_weather.weather_code
+            + (0 if self.coordinator.data.current_weather.is_day else 100)
         )
 
     @property
@@ -270,6 +272,8 @@ class OpenMeteoWeatherEntity(
                 forecast[ATTR_FORECAST_CLOUD_COVERAGE] = hourly.cloud_cover[index]
             if hourly.dew_point_2m is not None:
                 forecast[ATTR_FORECAST_NATIVE_DEW_POINT] = hourly.dew_point_2m[index]
+            if hourly.is_day is not None:
+                forecast[ATTR_FORECAST_IS_DAYTIME] = hourly.is_day[index]
             if hourly.precipitation is not None:
                 forecast[ATTR_FORECAST_NATIVE_PRECIPITATION] = hourly.precipitation[
                     index
@@ -289,6 +293,7 @@ class OpenMeteoWeatherEntity(
             if hourly.weather_code is not None:
                 forecast[ATTR_FORECAST_CONDITION] = WMO_TO_HA_CONDITION_MAP.get(
                     hourly.weather_code[index]
+                    + (0 if hourly.is_day is not None and hourly.is_day[index] else 100)
                 )
             if hourly.wind_direction_10m is not None:
                 forecast[ATTR_FORECAST_WIND_BEARING] = hourly.wind_direction_10m[index]

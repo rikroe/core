@@ -71,6 +71,7 @@ class OpenMeteoDataUpdateCoordinator(DataUpdateCoordinator[Forecast]):
                     HourlyParameters.APPARENT_TEMPERATURE,
                     HourlyParameters.CLOUD_COVER,
                     HourlyParameters.DEW_POINT_2M,
+                    HourlyParameters.IS_DAY,
                     HourlyParameters.PRECIPITATION_PROBABILITY,
                     HourlyParameters.PRECIPITATION,
                     HourlyParameters.PRESSURE_MSL,
