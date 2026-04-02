@@ -4,6 +4,7 @@ from copy import deepcopy
 from unittest.mock import AsyncMock, patch
 
 from bleak.exc import BleakDeviceNotFoundError
+from eurotronic_cometblue_ha import const as cometblue_const
 import pytest
 import voluptuous as vol
 
@@ -16,7 +17,7 @@ from homeassistant.const import CONF_ADDRESS, CONF_PIN
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
-from .conftest import FAKE_SERVICE_INFO
+from .conftest import FAKE_SERVICE_INFO, MockGattCharacteristics
 from .const import FIXTURE_DEVICE_NAME, FIXTURE_MAC, FIXTURE_USER_INPUT
 
 from tests.common import MockConfigEntry
@@ -175,6 +176,52 @@ async def test_bluetooth_flow_errors(
     assert result["errors"] == expected_error
 
     # now retry without side effect, simulating a user correcting the issue (e.g. entering correct PIN)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        FIXTURE_USER_INPUT,
+    )
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["result"].title == f"{FIXTURE_DEVICE_NAME} {FIXTURE_MAC}"
+    assert result["result"].unique_id == FIXTURE_MAC
+    assert result["result"].data == {
+        CONF_ADDRESS: FIXTURE_MAC,
+        CONF_PIN: FIXTURE_USER_INPUT[CONF_PIN],
+    }
+    assert len(mock_setup_entry.mock_calls) == 1
+
+
+async def test_bluetooth_flow_characteristic_override(
+    hass: HomeAssistant,
+    mock_setup_entry: AsyncMock,
+    mock_gatt_characteristics: MockGattCharacteristics,
+) -> None:
+    """Test characteristic overrides are visible through the real device stack."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN,
+        context={"source": config_entries.SOURCE_BLUETOOTH},
+        data=FAKE_SERVICE_INFO,
+    )
+
+    # Override battery to an empty value: get_battery_async() will raise IndexError,
+    # which the config flow surfaces as the generic "unknown" error.
+    mock_gatt_characteristics.update_characteristic(
+        cometblue_const.CHARACTERISTIC_BATTERY, b""
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"],
+        FIXTURE_USER_INPUT,
+    )
+
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "bluetooth_confirm"
+    assert result["errors"] == {"base": "unknown"}
+
+    # Restore a valid battery value so the retry succeeds.
+    mock_gatt_characteristics.update_characteristic(
+        cometblue_const.CHARACTERISTIC_BATTERY, b"48"
+    )
+
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
         FIXTURE_USER_INPUT,
