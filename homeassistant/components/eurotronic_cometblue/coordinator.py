@@ -1,4 +1,4 @@
-"""Provides the DataUpdateCoordinator."""
+"""Provides the DataUpdateCoordinator for Comet Blue."""
 
 from __future__ import annotations
 
@@ -66,10 +66,10 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[CometBlueCoordinatorD
         retry_count = 0
         while retry_count < MAX_RETRIES:
             try:
+                retry_count += 1
                 async with self.device:
                     return await function(**payload)
             except (InvalidByteValueError, TimeoutError, BleakError) as ex:
-                retry_count += 1
                 if retry_count >= MAX_RETRIES:
                     raise HomeAssistantError(
                         f"Error sending command to '{self.name}': {ex}"
@@ -95,6 +95,7 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[CometBlueCoordinatorD
 
         while retry_count < MAX_RETRIES and not data.temperatures:
             try:
+                retry_count += 1
                 async with self.device:
                     # temperatures are required and must trigger a retry if not available
                     if not data.temperatures:
@@ -113,7 +114,6 @@ class CometBlueDataUpdateCoordinator(DataUpdateCoordinator[CometBlueCoordinatorD
                             ex,
                         )
             except (InvalidByteValueError, TimeoutError, BleakError) as ex:
-                retry_count += 1
                 if retry_count >= MAX_RETRIES:
                     raise UpdateFailed(
                         f"Error retrieving data: {ex}", retry_after=30
