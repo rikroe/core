@@ -8,7 +8,7 @@ import uuid
 from bleak.backends.characteristic import BleakGATTCharacteristic
 from bleak.backends.scanner import AdvertisementData
 from bleak.exc import BleakCharacteristicNotFoundError
-from eurotronic_cometblue_ha import CometBlueBleakClient, const as cometblue_const
+from eurotronic_cometblue_ha import CometBlueBleakClient
 import pytest
 
 from homeassistant.components.bluetooth import BluetoothServiceInfoBleak
@@ -18,13 +18,15 @@ from homeassistant.const import CONF_ADDRESS, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import format_mac
 
-from .const import (
+from . import (
+    FIXTURE_DEFAULT_CHARACTERISTICS,
     FIXTURE_DEVICE_NAME,
-    FIXTURE_GATT_CHARACTERISTICS,
     FIXTURE_MAC,
     FIXTURE_RSSI,
     FIXTURE_SERVICE_UUID,
     FIXTURE_USER_INPUT,
+    WRITEABLE_CHARACTERISTICS,
+    WRITEABLE_CHARACTERISTICS_ALLOW_UNCHANGED,
 )
 
 from tests.common import MockConfigEntry
@@ -139,10 +141,12 @@ class MockCometBlueBleakClient(CometBlueBleakClient):
     ) -> None:
         """Mock write_gatt_char."""
         char_specifier = _normalize_characteristic(char_specifier)
+        if char_specifier not in WRITEABLE_CHARACTERISTICS:
+            raise BleakCharacteristicNotFoundError(char_specifier)
         data = bytearray(data)
         # when writing temperature it is possible that 128 will be sent, meaning "no change"
         # we have to restore the original value in this case to keep tests working
-        if char_specifier == cometblue_const.CHARACTERISTIC_TEMPERATURE:
+        if char_specifier in WRITEABLE_CHARACTERISTICS_ALLOW_UNCHANGED:
             for i, byte in enumerate(data):
                 if byte == 128:
                     data[i] = self.characteristics[char_specifier][i]
@@ -155,7 +159,7 @@ def mock_gatt_characteristics() -> MockGattCharacteristics:
     return MockGattCharacteristics(
         {
             characteristic: bytearray(value)
-            for characteristic, value in FIXTURE_GATT_CHARACTERISTICS.items()
+            for characteristic, value in FIXTURE_DEFAULT_CHARACTERISTICS.items()
         }
     )
 
