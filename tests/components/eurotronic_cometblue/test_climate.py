@@ -1,5 +1,7 @@
 """Test the eurotronic_cometblue climate platform."""
 
+from unittest.mock import patch
+
 from eurotronic_cometblue_ha import const as cometblue_const
 import pytest
 from syrupy.assertion import SnapshotAssertion
@@ -23,7 +25,7 @@ from homeassistant.components.climate import (
 from homeassistant.components.eurotronic_cometblue.climate import MAX_TEMP, MIN_TEMP
 from homeassistant.const import ATTR_ENTITY_ID, ATTR_TEMPERATURE, Platform
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import ServiceValidationError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers import entity_registry as er
 
 from .conftest import MockGattCharacteristics, setup_with_selected_platforms
@@ -237,3 +239,91 @@ async def test_turn_on_turn_off(
 
     assert (state := hass.states.get(ENTITY_ID))
     assert state.attributes[ATTR_TEMPERATURE] == expected_temperature
+
+
+@pytest.mark.parametrize(
+    ("raise_exception", "raised_exception"),
+    [
+        (TimeoutError, HomeAssistantError),
+        (ValueError, ServiceValidationError),
+    ],
+)
+async def test_set_temperature_errors(
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,
+    raise_exception: type[Exception],
+    raised_exception: type[Exception],
+) -> None:
+    """Test setting target temperature."""
+    await setup_with_selected_platforms(hass, mock_config_entry)
+
+    # raise BleakDeviceNotFoundError to simulate device being out of range
+    with (
+        pytest.raises(raised_exception),
+        patch(
+            "homeassistant.components.eurotronic_cometblue.coordinator.AsyncCometBlue.set_temperature_async",
+            side_effect=raise_exception(),
+        ),
+    ):
+        await hass.services.async_call(
+            CLIMATE_DOMAIN,
+            SERVICE_SET_TEMPERATURE,
+            {ATTR_ENTITY_ID: ENTITY_ID, ATTR_TEMPERATURE: 21.0},
+            blocking=True,
+        )
+
+
+async def test_update_data_error_handling(
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,
+) -> None:
+    """Test that update data errors are handled and retried."""
+    await setup_with_selected_platforms(hass, mock_config_entry)
+
+    assert (state := hass.states.get(ENTITY_ID))
+    assert state.attributes[ATTR_TEMPERATURE] == 20.0
+
+    # Fail with TimeoutError (expected) and raise UpdateFailed after 3 retries
+    with patch.object(
+        mock_config_entry.runtime_data.device,
+        "get_temperature_async",
+        side_effect=TimeoutError,
+    ) as mock_get_temperature:
+        await mock_config_entry.runtime_data.async_refresh()
+        await hass.async_block_till_done()
+
+        assert mock_get_temperature.call_count == 3
+        assert mock_config_entry.runtime_data.last_update_success is False
+        assert (state := hass.states.get(ENTITY_ID))
+        assert state.attributes[ATTR_TEMPERATURE] == 20.0
+
+    # Fail with OSError (unexpected) and raise UpdateFailed directly
+    with patch.object(
+        mock_config_entry.runtime_data.device,
+        "get_temperature_async",
+        side_effect=OSError,
+    ) as mock_get_temperature:
+        await mock_config_entry.runtime_data.async_refresh()
+        await hass.async_block_till_done()
+
+        assert mock_get_temperature.call_count == 1
+        assert mock_config_entry.runtime_data.last_update_success is False
+        assert (state := hass.states.get(ENTITY_ID))
+        assert state.attributes[ATTR_TEMPERATURE] == 20.0
+
+    # Fail once with TimeoutError and then succeed, verify that data is updated
+    updated_temperatures = dict(mock_config_entry.runtime_data.data.temperatures)
+    updated_temperatures["manualTemp"] = 27.0
+
+    with patch.object(
+        mock_config_entry.runtime_data.device,
+        "get_temperature_async",
+        side_effect=[TimeoutError(), updated_temperatures],
+    ) as mock_get_temperature:
+        await mock_config_entry.runtime_data.async_refresh()
+        await hass.async_block_till_done()
+
+        assert mock_get_temperature.call_count == 2
+        assert mock_config_entry.runtime_data.last_update_success is True
+        assert (state := hass.states.get(ENTITY_ID))
+        assert state.attributes[ATTR_TEMPERATURE] == 27.0
