@@ -14,13 +14,12 @@ from homeassistant.components.number import (
     NumberEntity,
     NumberEntityDescription,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PRECISION_HALVES, UnitOfTemperature, UnitOfTime
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .climate import MAX_TEMP, MIN_TEMP
-from .coordinator import CometBlueDataUpdateCoordinator
+from .coordinator import CometBlueConfigEntry, CometBlueDataUpdateCoordinator
 from .entity import CometBlueBluetoothEntity
 
 LOGGER = logging.getLogger(__name__)
@@ -97,12 +96,12 @@ DESCRIPTIONS = [
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: CometBlueConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up Comet Blue Bluetooth number based on a config entry."""
-    coordinator: CometBlueDataUpdateCoordinator = entry.runtime_data
+    """Set up the client entities."""
 
+    coordinator = entry.runtime_data
     entities: list[CometBlueNumberEntity] = [
         CometBlueNumberEntity(coordinator, description) for description in DESCRIPTIONS
     ]

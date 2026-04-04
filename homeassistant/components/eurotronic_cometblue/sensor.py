@@ -7,12 +7,11 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorEntityDescription,
 )
-from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .coordinator import CometBlueDataUpdateCoordinator
+from .coordinator import CometBlueConfigEntry, CometBlueDataUpdateCoordinator
 from .entity import CometBlueBluetoothEntity
 
 PARALLEL_UPDATES = 0
@@ -28,12 +27,12 @@ DESCRIPTIONS = [
 
 async def async_setup_entry(
     hass: HomeAssistant,
-    entry: ConfigEntry,
+    entry: CometBlueConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Set up Comet Blue Bluetooth sensor based on a config entry."""
-    coordinator: CometBlueDataUpdateCoordinator = entry.runtime_data
+    """Set up the client entities."""
 
+    coordinator = entry.runtime_data
     entities: list[CometBlueSensorEntity] = [
         CometBlueSensorEntity(coordinator, description) for description in DESCRIPTIONS
     ]
