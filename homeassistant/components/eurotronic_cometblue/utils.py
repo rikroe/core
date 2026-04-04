@@ -15,14 +15,11 @@ from .const import CONF_ALL_DAYS, CONF_DELETE, CONF_END, CONF_START, CONF_TEMPER
 def validate_half_precision(value: float) -> float:
     """Return True if the value is a half precision float."""
 
-    try:
-        r = value % 0.5
-        if r != 0:
-            raise vol.Invalid(
-                f"value {value} is not a half precision float, remainder is {r}"
-            )
-    except TypeError as err:
-        raise vol.Invalid(f"value {value} is not a float") from err
+    r = value % 0.5
+    if r != 0:
+        raise vol.Invalid(
+            f"value {value} is not a half precision float, remainder is {r}"
+        )
     return value
 
 

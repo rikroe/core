@@ -53,6 +53,13 @@ FIXTURE_DEFAULT_CHARACTERISTICS = {
         10,
     ],
     cometblue_const.CHARACTERISTIC_BATTERY: b"48",
+    cometblue_const.CHARACTERISTIC_MONDAY: [37, 137, 0, 0, 0, 0, 0, 0],
+    cometblue_const.CHARACTERISTIC_TUESDAY: [37, 137, 0, 0, 0, 0, 0, 0],
+    cometblue_const.CHARACTERISTIC_WEDNESDAY: [37, 137, 0, 0, 0, 0, 0, 0],
+    cometblue_const.CHARACTERISTIC_THURSDAY: [37, 137, 0, 0, 0, 0, 0, 0],
+    cometblue_const.CHARACTERISTIC_FRIDAY: [0, 1, 10, 20, 21, 130, 140, 143],
+    cometblue_const.CHARACTERISTIC_SATURDAY: [37, 137, 0, 0, 0, 0, 0, 0],
+    cometblue_const.CHARACTERISTIC_SUNDAY: [37, 137, 0, 0, 0, 0, 0, 0],
 }
 
 FIXTURE_USER_INPUT = {
