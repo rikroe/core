@@ -9,14 +9,7 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
 from .climate import MAX_TEMP, MIN_TEMP
-from .const import (
-    CONF_ALL_DAYS,
-    CONF_DATETIME,
-    CONF_DELETE,
-    CONF_END,
-    CONF_START,
-    CONF_TEMPERATURE,
-)
+from .const import CONF_ALL_DAYS, CONF_DELETE, CONF_END, CONF_START, CONF_TEMPERATURE
 
 
 def validate_half_precision(value: float) -> float:
@@ -87,10 +80,6 @@ def valid_cometblue_schedule_keys() -> list[str]:
         f"{CONF_END}{i}" for i in range(1, 5)
     ]
 
-
-SERVICE_DATETIME_SCHEMA = {
-    vol.Optional(CONF_DATETIME): cv.datetime,
-}
 
 SCHEDULE_DAY_SCHEMA = vol.All(
     {

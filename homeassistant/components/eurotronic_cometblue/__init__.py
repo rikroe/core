@@ -30,14 +30,11 @@ from homeassistant.helpers.typing import ConfigType
 from .const import CONF_ALL_DAYS, DOMAIN
 from .coordinator import CometBlueConfigEntry, CometBlueDataUpdateCoordinator
 from .entity import CometBlueBluetoothEntity
-from .utils import (
-    SERVICE_DATETIME_SCHEMA,
-    SERVICE_HOLIDAY_SCHEMA,
-    SERVICE_SCHEDULE_SCHEMA,
-)
+from .utils import SERVICE_HOLIDAY_SCHEMA, SERVICE_SCHEDULE_SCHEMA
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 PLATFORMS: list[Platform] = [
+    Platform.BUTTON,
     Platform.CLIMATE,
     Platform.NUMBER,
     Platform.SENSOR,
@@ -160,16 +157,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: CometBlueConfigEntry) ->
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up Eurotronic Comet Blue entity services."""
 
-    async def set_datetime(
-        entity: CometBlueBluetoothEntity, service_call: ServiceCall
-    ) -> None:
-        """Service call to update the datetime on the device."""
-        target_datetime = service_call.data.get("datetime") or datetime.now()
-        await entity.coordinator.send_command(
-            entity.coordinator.device.set_datetime_async,
-            {"date": target_datetime},
-        )
-
     async def get_schedule(
         entity: CometBlueBluetoothEntity, service_call: ServiceCall
     ) -> ServiceResponse:
@@ -236,15 +223,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
             },
         )
 
-    service.async_register_platform_entity_service(
-        hass,
-        DOMAIN,
-        "set_datetime",
-        entity_domain="climate",
-        schema=cv.make_entity_service_schema(SERVICE_DATETIME_SCHEMA),
-        supports_response=SupportsResponse.NONE,
-        func=set_datetime,
-    )
     service.async_register_platform_entity_service(
         hass,
         DOMAIN,

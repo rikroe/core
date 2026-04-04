@@ -71,7 +71,7 @@ async def test_climate_hvac_and_preset_states(
         temperature_values,
     )
 
-    await setup_with_selected_platforms(hass, mock_config_entry)
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.CLIMATE])
 
     assert (state := hass.states.get(ENTITY_ID))
     assert state.state == expected_hvac_mode
@@ -84,7 +84,7 @@ async def test_set_temperature(
     snapshot: SnapshotAssertion,
 ) -> None:
     """Test setting target temperature."""
-    await setup_with_selected_platforms(hass, mock_config_entry)
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.CLIMATE])
 
     assert (state := hass.states.get(ENTITY_ID))
     assert state == snapshot(name="before")
@@ -117,7 +117,7 @@ async def test_climate_preset_away_active(
         [47, 34, 34, 42, 0, 4, 10],
     )
 
-    await setup_with_selected_platforms(hass, mock_config_entry)
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.CLIMATE])
 
     assert (state := hass.states.get(ENTITY_ID))
     assert state.attributes[ATTR_PRESET_MODE] == PRESET_AWAY
@@ -150,7 +150,7 @@ async def test_set_preset_mode(
     expected_temperature: float,
 ) -> None:
     """Test setting preset modes."""
-    await setup_with_selected_platforms(hass, mock_config_entry)
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.CLIMATE])
 
     await hass.services.async_call(
         CLIMATE_DOMAIN,
@@ -170,7 +170,7 @@ async def test_set_preset_mode_display_only_raises(
     preset_mode: str,
 ) -> None:
     """Test display-only presets cannot be set."""
-    await setup_with_selected_platforms(hass, mock_config_entry)
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.CLIMATE])
 
     with pytest.raises(ServiceValidationError, match="Unable to set preset"):
         await hass.services.async_call(
@@ -197,7 +197,7 @@ async def test_set_hvac_mode(
     expected_temperature: float,
 ) -> None:
     """Test setting HVAC modes."""
-    await setup_with_selected_platforms(hass, mock_config_entry)
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.CLIMATE])
 
     await hass.services.async_call(
         CLIMATE_DOMAIN,
@@ -225,7 +225,7 @@ async def test_turn_on_turn_off(
     expected_temperature: float,
 ) -> None:
     """Test turn_on and turn_off services."""
-    await setup_with_selected_platforms(hass, mock_config_entry)
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.CLIMATE])
 
     assert (state := hass.states.get(ENTITY_ID))
     assert state.attributes[ATTR_TEMPERATURE] == 20.0
@@ -255,7 +255,7 @@ async def test_set_temperature_errors(
     raised_exception: type[Exception],
 ) -> None:
     """Test setting target temperature."""
-    await setup_with_selected_platforms(hass, mock_config_entry)
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.CLIMATE])
 
     # raise BleakDeviceNotFoundError to simulate device being out of range
     with (
@@ -278,7 +278,7 @@ async def test_update_data_error_handling(
     mock_config_entry: MockConfigEntry,
 ) -> None:
     """Test that update data errors are handled and retried."""
-    await setup_with_selected_platforms(hass, mock_config_entry)
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.CLIMATE])
 
     assert (state := hass.states.get(ENTITY_ID))
     assert state.attributes[ATTR_TEMPERATURE] == 20.0

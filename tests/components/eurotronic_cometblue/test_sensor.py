@@ -33,7 +33,7 @@ async def test_update_data_error_handling(
     mock_config_entry: MockConfigEntry,
 ) -> None:
     """Test that update data errors are handled and retried."""
-    await setup_with_selected_platforms(hass, mock_config_entry)
+    await setup_with_selected_platforms(hass, mock_config_entry, [Platform.SENSOR])
 
     assert (state := hass.states.get(ENTITY_ID))
     assert float(state.state) == 52.0
